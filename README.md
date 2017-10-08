@@ -8,5 +8,6 @@ Anything that's already in the download folder will be skipped.
 Run it each month to get the latest issue.  Something for a Cron job :)
 
 TODO:
-  Remove the need for BeautifulSoup, perhaps switch to using  RegEx
-  Create downloads for the other types of MagPi magazines
+Remove the need for BeautifulSoup, perhaps switch to using  RegEx
+Create downloads for the other types of MagPi magazines
+Work out why the TODO list is all on one line!
