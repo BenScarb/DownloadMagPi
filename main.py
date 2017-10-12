@@ -52,7 +52,7 @@ if free_download_link.has_attr('href'):
 			print(multi_download_link)
 
 		# Convert the issue number to an Int (via string as it was Unicode to start with!)
-		for i in range(1, int(str(issue_val.group('Numb')))):
+		for i in range(1, int(str(issue_val.group('Numb')))+1):
 			# Fill in the issue number with the current number
 			to_download = multi_download_link.format(i)
 			if debug:
