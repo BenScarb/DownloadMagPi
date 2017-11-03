@@ -6,9 +6,11 @@ It'll open the page, check the RapsberryPi.org site for the latest issue, then d
 Anything that's already in the download folder will be skipped.
 
 main.py uses the "BeautifulSoup3" library for Python
+
 all_issues.py uses a RegEx to search the page for the download links, this also gets ALL the magazine types, not just the main issues.
 
 Run it each month to get the latest issue.  Something for a Cron job :)
 
-TODO
-Work out why the TODO list is all on one line!
+TODO:
+
+Work out why the TODO list is all on one line! (something to do with line breaks..)
