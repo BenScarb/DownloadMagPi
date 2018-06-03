@@ -85,6 +85,8 @@ for link in links:
 			output_dir = essen_path
 		elif filename.startswith("Hack"):
 			output_dir = hs_path
+		elif filename.startswith("HS"):
+			output_dir = hs_path
 		else:
 			output_dir = other_path
 
