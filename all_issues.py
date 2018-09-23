@@ -19,9 +19,17 @@ output_dir = "D:\\MagPi\\"
 def GetLinks(url, regEx):
 	if debug:
 		print("Downloading " + url)
-	# query the website and return the html to the variable 'page'
-	response = urllib2.urlopen(url)
+	
+	# add the required header
+	hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11' }
+	# set up the query the to the url with the header
+	req = urllib2.Request(url, headers=hdr)
+	# open the request
+	response = urllib2.urlopen(req)
+
+	# read the page contents
 	page = response.read()
+	# close the connection
 	response.close()
 
 	if debug:
@@ -101,9 +109,17 @@ for link in links:
 		else:
 			# Open the remote file, download and write to disk.
 			# TODO: add some error checking/Try-Except here!
-			download = urllib2.urlopen(link)
+
+			# set up the needed header
+			hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'} #,
+			# set up the request to tthe link
+			req = urllib2.Request(link, headers=hdr)
+			# open the request to the link contents
+			download = urllib2.urlopen(req)
+
 			print("Downloading file now")
 			with open(output_file,'wb') as output:
+				# Output the contents to the output file
 				output.write(download.read())
 
 print("Done...")
