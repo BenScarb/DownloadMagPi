@@ -11,6 +11,8 @@ base_url = 'https://www.raspberrypi.org/magpi/issues/'
 base_anchor = '5px;\"><a href=\"(?P<link>.+?pdf)\".+?>Download Free</a>'
 base2_url = 'https://hackspace.raspberrypi.org/issues/'
 base2_anchor = 'download=\"true\" href=\"(?P<link>.+?\\.pdf\\?[0-9]{0,20})\">Download free PDF</a>'
+base3_url = 'https://wireframe.raspberrypi.org/issues/'
+base3_anchor = 'download=\"true\" href=\"(?P<link>.+?\\.pdf\\?[0-9]{0,20})\">Download free PDF</a>'
 
 #base2_anchor = '                  href=\"(?P<link>.+?\.pdf\?[0-9]{0,20})\">Download free PDF</a>'
 # Place to put the files (Yes, I developed it on windows!)
@@ -52,6 +54,8 @@ essen_path = os.path.join(output_dir, "Essentials")
 other_path = os.path.join(output_dir, "Other")
 # HackSpace magazine
 hs_path = os.path.join(output_dir, "HackSpace")
+# WireFrame magazine
+wf_path = os.path.join(output_dir, "WireFrame")
 
 # Make sure the output folders is available
 if not os.path.exists(magpi_path):
@@ -66,6 +70,10 @@ if not os.path.exists(other_path):
 if not os.path.exists(hs_path):
 	print("Creating '{0}' now".format(hs_path))
 	os.makedirs(hs_path)
+if not os.path.exists(wf_path):
+	print("Creating '{0}' now".format(wf_path))
+	os.makedirs(wf_path)
+
 
 if debug:
 	print("Getting links for first URL")
@@ -73,6 +81,9 @@ links = GetLinks(base_url, base_anchor)
 if debug:
 	print("Getting links for second URL")
 links += GetLinks(base2_url, base2_anchor)
+if debug:
+	print("Getting links for third URL")
+links += GetLinks(base3_url, base3_anchor)
 
 
 for link in links:
@@ -105,6 +116,8 @@ for link in links:
 			output_dir = hs_path
 		elif "_HS_" in filename:
 			output_dir = hs_path
+		elif filename.startswith("Wire"):
+			output_dir = wf_path
 		else:
 			output_dir = other_path
 
