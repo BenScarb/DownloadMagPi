@@ -118,6 +118,8 @@ for link in links:
 			output_dir = hs_path
 		elif filename.startswith("Wire"):
 			output_dir = wf_path
+		elif filename.startswith("WF"):
+			output_dir = wf_path
 		else:
 			output_dir = other_path
 
