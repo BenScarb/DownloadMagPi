@@ -1,125 +1,112 @@
-import urllib2
+from urllib.parse import urlparse
+import requests
 import re
 import os
 
 # Debug setting
 debug = False
 
-
-# specify the urlof the MagPi page, with the "Download Free" button
-base_url = 'https://www.raspberrypi.org/magpi/issues/'
-base_anchor = '<a href=\"(?P<link>.+?pdf)\".+?>Download Free<\/a>'
-base2_url = 'https://hackspace.raspberrypi.org/issues/'
-base2_anchor = 'href=\"(?P<link>.+?\.pdf\?[0-9]{0,20})\">Download free PDF<\/a>'
 # Place to put the files (Yes, I developed it on windows!)
 # CHANGE THIS FOR YOUR OWN PATH
 output_dir = "D:\\MagPi\\"
 
+# URLs for all the Raspberry Pi Foundation Free magazines and books
+# With a locaiton and template filename
+urlList = []
+urlList.append(('https://magpi.raspberrypi.org/issues', os.path.join(output_dir, "Magazines", "MagPi<NUMB>.pdf")))
+urlList.append(('https://magpi.raspberrypi.org/books', os.path.join(output_dir, "Books", "<BOOK>")))
+urlList.append(('https://hackspace.raspberrypi.org/issues/', os.path.join(output_dir, "HackSpace", "HackSpaceMagazine<NUMB>.pdf")))
+urlList.append(('https://wireframe.raspberrypi.org/issues/', os.path.join(output_dir, "WireFrame", "Wireframe<NUMB>.pdf")))
 
-def GetLinks(url, regEx):
-	if debug:
-		print("Downloading " + url)
-	
-	# add the required header
-	hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11' }
-	# set up the query the to the url with the header
-	req = urllib2.Request(url, headers=hdr)
-	# open the request
-	response = urllib2.urlopen(req)
+fileNo = 1
 
-	# read the page contents
-	page = response.read()
-	# close the connection
-	response.close()
+def GetPage(url):
+    global fileNo
+    if debug:
+        print("Downloading " + str(url))
 
-	if debug:
-		print("Now doing a RegEx on the page text with regex='" + regEx + "'")
-		print(str(page))
+    page = ''
+    # query the website and return the html to the variable 'page'
+    try:
+        r = requests.get(url, allow_redirects=True)
+        if debug:
+            open('D:\\Page_' + str(fileNo) + '.txt', 'wb').write(r.content)
+            fileNo += 1
+        page = r.content
+    except Exception as err:
+        print("There was an error")
+        print(err)
 
-	# Go through the page and find all the "Download Free" links
-	return re.findall(regEx, str(page), flags=re.IGNORECASE)
+    return page
 
+def ProcessFirstLinks(page):
+    #<a class="c-issue-actions__link c-link u-text-bold" href="/issues/24/pdf">Download Free PDF</a>
+    #<a class="c-button c-button--secondary u-mb-x2" href="/issues/23/pdf">Free Download</a>
+    firstSearch = '<a class=\"c-issue-actions__link c-link u-text-bold\" href=\"(?P<link>.+?pdf)\">Download Free PDF</a>'
+    secondSearch = '<a class=\"c-button c-button--secondary u-mb-x2\" href=\"(?P<link>.+?pdf)\">Free Download</a>'
+    ret = []
+    ret += re.findall(firstSearch, str(page), flags=re.IGNORECASE)
+    ret += re.findall(secondSearch, str(page), flags=re.IGNORECASE)
+    return ret
 
-# Path to MagPi Magazines
-magpi_path = os.path.join(output_dir, "Magazines")
-# Path to Essentials
-essen_path = os.path.join(output_dir, "Essentials")
-# Path to Other Magazines
-other_path = os.path.join(output_dir, "Other")
-# HackSpace magazine
-hs_path = os.path.join(output_dir, "HackSpace")
+def ProcessSecondPage(page):
+    #<a class="c-link" download="beginners-guide-2nd-ed.pdf" href="https://magazines-static.raspberrypi.org/books/full_pdfs/000/000/001/original/Beginners_Guide_v2.pdf?1568891625">click here to get your free PDF</a>
+    #<a class="c-link" download="hackspace-magazine-issue-24.pdf" href="https://magazines-static.raspberrypi.org/issues/full_pdfs/000/000/260/original/HackSpaceMagazine24.pdf?1571837861">click here to get your free PDF</a>
+    linkRef = '<a class=\"c-link\" download=\".+?\" href=\"(?P<link>.+?)\">click here to get your free pdf</a>'
+    return re.findall(linkRef, str(page), flags=re.IGNORECASE)
 
 # Make sure the output folders is available
-if not os.path.exists(magpi_path):
-	print("Creating '{0}' now".format(magpi_path))
-	os.makedirs(magpi_path)
-if not os.path.exists(essen_path):
-	print("Creating '{0}' now".format(essen_path))
-	os.makedirs(essen_path)
-if not os.path.exists(other_path):
-	print("Creating '{0}' now".format(other_path))
-	os.makedirs(other_path)
-if not os.path.exists(hs_path):
-	print("Creating '{0}' now".format(hs_path))
-	os.makedirs(hs_path)
+for (url, template) in urlList:
+    dir = os.path.dirname(template)
+    if not os.path.exists(dir):
+        print("Creating '{0}' now".format(dir))
+        os.makedirs(dir)
 
-links = GetLinks(base_url, base_anchor)
-links += GetLinks(base2_url, base2_anchor)
+# create a base links
+links = []
+# Get the links from all the pages, using the RegEx supplied
+for (url, template) in urlList:
+    print("URL: " + url + " - Template:" + template)
+    # Get the primary page, with all the links
+    page = GetPage(url)
+    # Process the page, get the links
+    secondPages = ProcessFirstLinks(page)
+    # Get the URL parts we need
+    urlParts = urlparse(url)
+    prependLink = urlParts.scheme + '://'+ urlParts.netloc
+    # Go through the links
+    for primeLink in secondPages:
+        # Set up the var for processing
+        page = ""
+        outFile = ""
 
+        # Check to see if there's a number in the URL
+        fileParts = primeLink.split('/')
+        if fileParts[2].isnumeric():
+            # Generate the output filename from the template
+            outFile = template.replace("<NUMB>", "{:02d}".format(int(fileParts[2])))
+            # Check to make sure the file doesn't already exist, don't bother getting
+            # the linked page if it exists, less load on severs.
+            if not os.path.isfile(outFile):
+                page = GetPage(prependLink + primeLink)
+        else:
+            # No number, so get the file name from the link (later)
+            page = GetPage(prependLink + primeLink)
 
-for link in links:
-	print("Looking at {0} now".format(link))
+        # If there's not page to process, skip it
+        if not page == "":
+            # Get the actual download link
+            downloadLink = ProcessSecondPage(page)
+            # If no name has been supplied
+            if outFile == "":
+                # Get the on disk name from the URL
+                fileParts = downloadLink[0].split('/')
+                outFile = template.replace("<BOOK>", fileParts[-1].split('?')[0])
 
-	# Find the last / and extract the file name
-	last_pos = link.rfind("/")
-	if last_pos == -1:
-		print("Link is malformed, unable to process")
-	else:
-		#grab the filename
-		filename = link[last_pos+1:]
-
-		# Check to see if there's a ? in the filename, trim it all off if there is
-		last_pos = filename.rfind("?")
-		if last_pos != -1:
-			filename = filename[:last_pos]
-
-		if debug:
-			print(filename)
-
-		# Work out what sort of PDF it is
-		if filename.startswith("MagPi"):
-			output_dir = magpi_path
-		elif filename.startswith("Essentials"):
-			output_dir = essen_path
-		elif filename.startswith("Hack"):
-			output_dir = hs_path
-		elif filename.startswith("HS"):
-			output_dir = hs_path
-		else:
-			output_dir = other_path
-
-		# Create the output filename
-		output_file = os.path.join(output_dir, filename)
-
-
-		# Check to see if the download has already been done
-		if os.path.exists(output_file):
-			# Tell the user the file already exists
-			print("File already exists")
-		else:
-			# Open the remote file, download and write to disk.
-			# TODO: add some error checking/Try-Except here!
-
-			# set up the needed header
-			hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'} #,
-			# set up the request to tthe link
-			req = urllib2.Request(link, headers=hdr)
-			# open the request to the link contents
-			download = urllib2.urlopen(req)
-
-			print("Downloading file now")
-			with open(output_file,'wb') as output:
-				# Output the contents to the output file
-				output.write(download.read())
+            # Check to see if the file exists already (mainly for the books section)
+            if not os.path.isfile(outFile):
+                print("Getting :" + outFile)
+                r = requests.get(downloadLink[0], allow_redirects=True)
+                open(outFile, 'wb').write(r.content)
 
 print("Done...")
