@@ -69,7 +69,15 @@ def CheckAndDownloadFile(url, outfile):
             print("Download link not found")
         else:
             print("Getting :" + outFile)
-            r = requests.get(dllink.group("link"), allow_redirects=True)
+            if dllink.group("link").startswith("http"):
+                url = dllink.group("link")
+            else:
+                # Get the URL parts we need
+                urlParts = urlparse(url)
+                # Reconstruct the URL
+                url = urlParts.scheme + '://'+ urlParts.netloc +  dllink.group("link")
+
+            r = requests.get(url, allow_redirects=True)
             open(outFile, 'wb').write(r.content)        
 
 # Make sure the output folders is available
