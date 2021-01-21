@@ -32,6 +32,7 @@ urlList.append(('https://wireframe.raspberrypi.org/issues/', os.path.join(output
 urlList.append(('https://helloworld.raspberrypi.org/issues', os.path.join(output_dir, "HelloWorld", "HelloWorld_<NUMB>.pdf"), MagazineLink))
 urlList.append(('https://magpi.raspberrypi.org/books', os.path.join(output_dir, "Books", "<BOOK>"), BookLinks))
 urlList.append(('https://wireframe.raspberrypi.org/books/', os.path.join(output_dir, "Wireframe_Books", "<BOOK>"), BookLinks))
+urlList.append(('https://hackspace.raspberrypi.org/books/', os.path.join(output_dir, "HackSpace_Books", "<BOOK>"), BookLinks))
 
 fileNo = 1
 
