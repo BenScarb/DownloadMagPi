@@ -26,13 +26,13 @@ def BookLinks(page):
 # URLs for all the Raspberry Pi Foundation Free magazines and books
 # With a locaiton and template filename
 urlList = []
-urlList.append(('https://magpi.raspberrypi.org/issues', os.path.join(output_dir, "MagPi", "MagPi<NUMB>.pdf"), MagazineLink))
-urlList.append(('https://hackspace.raspberrypi.org/issues/', os.path.join(output_dir, "HackSpace", "HackSpaceMagazine<NUMB>.pdf"), MagazineLink))
-urlList.append(('https://wireframe.raspberrypi.org/issues/', os.path.join(output_dir, "WireFrame", "Wireframe<NUMB>.pdf"), MagazineLink))
-urlList.append(('https://helloworld.raspberrypi.org/issues', os.path.join(output_dir, "HelloWorld", "HelloWorld_<NUMB>.pdf"), MagazineLink))
-urlList.append(('https://magpi.raspberrypi.org/books', os.path.join(output_dir, "Books", "<BOOK>"), BookLinks))
-urlList.append(('https://wireframe.raspberrypi.org/books/', os.path.join(output_dir, "Wireframe_Books", "<BOOK>"), BookLinks))
-urlList.append(('https://hackspace.raspberrypi.org/books/', os.path.join(output_dir, "HackSpace_Books", "<BOOK>"), BookLinks))
+urlList.append(('https://magpi.raspberrypi.org/issues', os.path.join(output_dir, "MagPi", "MagPi<NUMB>.pdf"), MagazineLink, "download"))
+urlList.append(('https://hackspace.raspberrypi.org/issues/', os.path.join(output_dir, "HackSpace", "HackSpaceMagazine<NUMB>.pdf"), MagazineLink, "download"))
+urlList.append(('https://wireframe.raspberrypi.org/issues/', os.path.join(output_dir, "WireFrame", "Wireframe<NUMB>.pdf"), MagazineLink, "download"))
+urlList.append(('https://helloworld.raspberrypi.org/issues', os.path.join(output_dir, "HelloWorld", "HelloWorld_<NUMB>.pdf"), MagazineLink, ""))
+urlList.append(('https://magpi.raspberrypi.org/books', os.path.join(output_dir, "Books", "<BOOK>"), BookLinks, "download"))
+urlList.append(('https://wireframe.raspberrypi.org/books/', os.path.join(output_dir, "Wireframe_Books", "<BOOK>"), BookLinks, "download"))
+urlList.append(('https://hackspace.raspberrypi.org/books/', os.path.join(output_dir, "HackSpace_Books", "<BOOK>"), BookLinks), "download")
 
 fileNo = 1
 
@@ -61,9 +61,9 @@ def CheckAndDownloadFile(url, outfile):
     if not os.path.isfile(outFile):
         # Get the download page
         page = GetPage(url)
-        # Find the iFrame with the actual download link
-        #<iframe src="https://magazines-attachments.raspberrypi.org/issues/full_pdfs/000/000/462/original/MagPi99.pdf?1603959693" class="u-hidden"></iframe>
-        linkRegEx = "<iframe src=\"(?P<link>.+?)\" class=\"u-hidden\"></iframe>"
+        # Find the "Click if it didn't start" link with the actual download URL
+        #<a class="c-link" href="/downloads/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBa0FUIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d855b2aaf5533eb0d127165dafa32e8cb09fd523/HS%2342_Digital.pdf">click here to get your free PDF</a>.
+        linkRegEx = "<a class=\"c-link\"[ download=\".+?\"]? href=\"(?P<link>.+)\">click here to get your free PDF</a>"
         dllink = re.search(linkRegEx, str(page), flags=re.IGNORECASE)
 
         if dllink is None:
@@ -82,14 +82,16 @@ def CheckAndDownloadFile(url, outfile):
             open(outFile, 'wb').write(r.content)        
 
 # Make sure the output folders is available
-for (url, template, _) in urlList:
+for (url, template, _, _) in urlList:
     dir = os.path.dirname(template)
     if not os.path.exists(dir):
         print("Creating '{0}' now".format(dir))
         os.makedirs(dir)
 
 # Get the links from all the pages, using the RegEx supplied
-for (url, template, processor) in urlList:
+for (url, template, processor, link_addition) in urlList:
+    if len(link_addition) > 0:
+        link_addition = "/" + link_addition
     print("URL: " + url + " - Template:" + template)
     # Get the primary page, with all the links
     page = GetPage(url)
@@ -109,11 +111,11 @@ for (url, template, processor) in urlList:
                 # Generate the output filename from the template
                 outFile = template.replace("<NUMB>", "{:02d}".format(int(fileParts[2])))
                 # Check for the link and download
-                CheckAndDownloadFile(prependLink + link + "/download", outFile)
+                CheckAndDownloadFile(prependLink + link + link_addition, outFile)
 
                 if doBackIssues:
                     # Turn the main link into a template
-                    templateLink = (prependLink + link + "/download").replace("/" + fileParts[2] + "/", "/<NUMB>/")
+                    templateLink = (prependLink + link + link_addition).replace("/" + fileParts[2] + "/", "/<NUMB>/")
                     # Go from the beginning to one before the last issue.
                     for issueNumb in range(1, int(fileParts[2])):
                         # Generate the output filename from the template
@@ -124,6 +126,6 @@ for (url, template, processor) in urlList:
                 # Do a book template replace
                 outFile = template.replace("<BOOK>", fileParts[2] + ".pdf")
                 # Generate the download link and pass it off
-                CheckAndDownloadFile(prependLink + link + "/download", outFile)
+                CheckAndDownloadFile(prependLink + link + link_addition, outFile)
 
 print("Done...")
