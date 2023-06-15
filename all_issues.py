@@ -15,12 +15,16 @@ output_dir = "D:\\MagPi\\"
 
 def MagazineLink(page):
     #<a class="c-issue-actions__link c-link u-text-bold" href="/issues/24/pdf">Download Free PDF</a>
-    linkSearch = '<a class=\"c-issue-actions__link c-link u-text-bold\" href=\"(?P<link>.+?pdf)\">Download Free PDF</a>'
+    linkSearch = '<a class=\"c-button c-button--secondary c-button--block\" href=\"(?P<link>.+?pdf)\">Download PDF</a>'
+    return re.findall(linkSearch, str(page), flags=re.IGNORECASE)
+
+def HelloWorldMagazineLink(page):
+    linkSearch = '<a class=\"(c-issue-actions__link c-link u-text-bold|c-button c-button--secondary u-mb-x2)\" href=\"(?P<link>.+?pdf)\">(Download Free PDF|Free Download)</a>'
     return re.findall(linkSearch, str(page), flags=re.IGNORECASE)
 
 def BookLinks(page):
     #<a class="c-button c-button--secondary c-button--block" href="/books/unity-fps/pdf">Free Download</a>
-    linkRef = '<a class="c-button c-button--secondary c-button--block" href="(?P<link>.+?)">Free Download</a>'
+    linkRef = '<a class="c-button c-button--secondary c-button--block" href="(?P<link>.+?)">Download PDF</a>'
     return re.findall(linkRef, str(page), flags=re.IGNORECASE)
 
 # URLs for all the Raspberry Pi Foundation Free magazines and books
@@ -28,11 +32,16 @@ def BookLinks(page):
 urlList = []
 urlList.append(('https://magpi.raspberrypi.org/issues', os.path.join(output_dir, "MagPi", "MagPi<NUMB>.pdf"), MagazineLink, "download"))
 urlList.append(('https://hackspace.raspberrypi.org/issues/', os.path.join(output_dir, "HackSpace", "HackSpaceMagazine<NUMB>.pdf"), MagazineLink, "download"))
-urlList.append(('https://wireframe.raspberrypi.org/issues/', os.path.join(output_dir, "WireFrame", "Wireframe<NUMB>.pdf"), MagazineLink, "download"))
-urlList.append(('https://helloworld.raspberrypi.org/issues', os.path.join(output_dir, "HelloWorld", "HelloWorld_<NUMB>.pdf"), MagazineLink, ""))
+urlList.append(('https://helloworld.raspberrypi.org/issues', os.path.join(output_dir, "HelloWorld", "HelloWorld_<NUMB>.pdf"), HelloWorldMagazineLink, ""))
 urlList.append(('https://magpi.raspberrypi.org/books', os.path.join(output_dir, "Books", "<BOOK>"), BookLinks, "download"))
-urlList.append(('https://wireframe.raspberrypi.org/books/', os.path.join(output_dir, "Wireframe_Books", "<BOOK>"), BookLinks, "download"))
 urlList.append(('https://hackspace.raspberrypi.org/books/', os.path.join(output_dir, "HackSpace_Books", "<BOOK>"), BookLinks, "download"))
+
+# Wireframe things need updating
+# https://whynowgaming.com/product-category/wireframe-pdf-magazines/
+# Seems to be the URL, sadly paged listing not one nice long list.
+# Very sadly no more issues, but good for getting the collection
+#urlList.append(('https://wireframe.raspberrypi.org/issues/', os.path.join(output_dir, "WireFrame", "Wireframe<NUMB>.pdf"), MagazineLink, "download"))
+#urlList.append(('https://wireframe.raspberrypi.org/books/', os.path.join(output_dir, "Wireframe_Books", "<BOOK>"), BookLinks, "download"))
 
 fileNo = 1
 

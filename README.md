@@ -9,9 +9,13 @@ all_issues.py uses a RegEx to search the page for the download links, depending 
 
 Run it each month to get the latest issue.  Something for a Cron job :)
 
+Don't forget, if you like the magzines, BUY THEM TOO!
+Otherwise there won't be any PDFs to download.
+
 TODO:
  1. ~~Work out why the TODO list is all on one line! (something to do with
     line breaks..)~~ (Used a wysiwyg editor)
  2. Improve Error handling (as there is some now)
+ 3. Update the Wireframe to look at the legacy links.
  3. Perhaps make it in to a class
 
