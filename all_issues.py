@@ -19,7 +19,7 @@ def MagazineLink(page):
     return re.findall(linkSearch, str(page), flags=re.IGNORECASE)
 
 def HelloWorldMagazineLink(page):
-    linkSearch = '<a class=\"(c-issue-actions__link c-link u-text-bold|c-button c-button--secondary u-mb-x2)\" href=\"(?P<link>.+?pdf)\">(Download Free PDF|Free Download)</a>'
+    linkSearch = '<a class=\"(?:c-issue-actions__link c-link u-text-bold|c-button c-button--secondary u-mb-x2)\" href=\"(?P<link>.+?pdf)\">(?:Download Free PDF|Free Download)</a>'
     return re.findall(linkSearch, str(page), flags=re.IGNORECASE)
 
 def BookLinks(page):
@@ -30,11 +30,11 @@ def BookLinks(page):
 # URLs for all the Raspberry Pi Foundation Free magazines and books
 # With a locaiton and template filename
 urlList = []
-urlList.append(('https://magpi.raspberrypi.org/issues', os.path.join(output_dir, "MagPi", "MagPi<NUMB>.pdf"), MagazineLink, "download"))
-urlList.append(('https://hackspace.raspberrypi.org/issues/', os.path.join(output_dir, "HackSpace", "HackSpaceMagazine<NUMB>.pdf"), MagazineLink, "download"))
+#urlList.append(('https://magpi.raspberrypi.org/issues', os.path.join(output_dir, "MagPi", "MagPi<NUMB>.pdf"), MagazineLink, "download"))
+#urlList.append(('https://hackspace.raspberrypi.org/issues/', os.path.join(output_dir, "HackSpace", "HackSpaceMagazine<NUMB>.pdf"), MagazineLink, "download"))
 urlList.append(('https://helloworld.raspberrypi.org/issues', os.path.join(output_dir, "HelloWorld", "HelloWorld_<NUMB>.pdf"), HelloWorldMagazineLink, ""))
-urlList.append(('https://magpi.raspberrypi.org/books', os.path.join(output_dir, "Books", "<BOOK>"), BookLinks, "download"))
-urlList.append(('https://hackspace.raspberrypi.org/books/', os.path.join(output_dir, "HackSpace_Books", "<BOOK>"), BookLinks, "download"))
+#urlList.append(('https://magpi.raspberrypi.org/books', os.path.join(output_dir, "Books", "<BOOK>"), BookLinks, "download"))
+#urlList.append(('https://hackspace.raspberrypi.org/books/', os.path.join(output_dir, "HackSpace_Books", "<BOOK>"), BookLinks, "download"))
 
 # Wireframe things need updating
 # https://whynowgaming.com/product-category/wireframe-pdf-magazines/
