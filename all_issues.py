@@ -15,7 +15,7 @@ output_dir = "D:\\MagPi\\"
 
 def MagazineLink(page):
     #<a class="c-issue-actions__link c-link u-text-bold" href="/issues/24/pdf">Download Free PDF</a>
-    linkSearch = '<a class=\"c-button c-button--secondary c-button--block\" href=\"(?P<link>.+?pdf)\">Download PDF</a>'
+    linkSearch = '<a class=\"c-button c-button--secondary c-button--block\" href=\"(?P<link>.+?pdf)\">Get PDF</a>'
     return re.findall(linkSearch, str(page), flags=re.IGNORECASE)
 
 def HelloWorldMagazineLink(page):
@@ -24,7 +24,7 @@ def HelloWorldMagazineLink(page):
 
 def BookLinks(page):
     #<a class="c-button c-button--secondary c-button--block" href="/books/unity-fps/pdf">Free Download</a>
-    linkRef = '<a class="c-button c-button--secondary c-button--block" href="(?P<link>.+?)">Download PDF</a>'
+    linkRef = '<a class="c-button c-button--secondary c-button--block" href="(?P<link>.+?)">Get PDF</a>'
     return re.findall(linkRef, str(page), flags=re.IGNORECASE)
 
 # URLs for all the Raspberry Pi Foundation Free magazines and books
@@ -72,7 +72,8 @@ def CheckAndDownloadFile(url, outfile):
         page = GetPage(url)
         # Find the "Click if it didn't start" link with the actual download URL
         #<a class="c-link" href="/downloads/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBa0FUIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d855b2aaf5533eb0d127165dafa32e8cb09fd523/HS%2342_Digital.pdf">click here to get your free PDF</a>.
-        linkRegEx = "<a class=\"c-link\"[ download=\".+?\"]? href=\"(?P<link>.+)\">click here to get your free PDF</a>"
+        #linkRegEx = "<a class=\"c-link\"[ download=\".+?\"]? href=\"(?P<link>.+)\">click here to get your free PDF</a>"
+        linkRegEx = "<a class=\"c-link\".+href=\"(?P<link>.+)\">click here to get your free PDF</a>"
         dllink = re.search(linkRegEx, str(page), flags=re.IGNORECASE)
 
         if dllink is None:
